@@ -1,0 +1,2 @@
+[submodule "py_matrix_host"]
+	url = https://github.com/FernandoSchett/python_MM_host_uart.git
