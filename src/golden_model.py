@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
         "--env-file",
         type=Path,
         default=DEFAULT_ENV_FILE,
-        help="Configuration file with shared defaults. Default: env/matrix.env",
+        help="Configuration file with shared defaults. Default: .env",
     )
     env_args, _ = env_parser.parse_known_args()
     config = load_matrix_config(env_args.env_file)

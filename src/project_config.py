@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_ENV_FILE = PROJECT_ROOT / "env" / "matrix.env"
+DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 
 
 @dataclass(frozen=True)
