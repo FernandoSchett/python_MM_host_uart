@@ -7,15 +7,20 @@ import json
 import random
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
 
 try:
     from .matrix_io import MatrixTest, multiply_matrices, signed_range_for_width
     from .matrix_io import write_expected_file, write_input_file
-    from .project_config import DEFAULT_ENV_FILE, load_matrix_config
 except ImportError:
     from matrix_io import MatrixTest, multiply_matrices, signed_range_for_width
     from matrix_io import write_expected_file, write_input_file
-    from project_config import DEFAULT_ENV_FILE, load_matrix_config
+
+try:
+    from config.project_config import DEFAULT_ENV_FILE, load_matrix_config
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from config.project_config import DEFAULT_ENV_FILE, load_matrix_config
 
 
 DEFAULT_EXAMPLE_A = [[1, 2], [3, 4]]

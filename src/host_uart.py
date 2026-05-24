@@ -25,13 +25,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 try:
-    from src.matrix_io import MatrixInputFile, MatrixTest, multiply_matrices
-    from src.matrix_io import read_expected_file, read_input_file, write_expected_file
-    from src.project_config import PROJECT_ROOT
+    from .matrix_io import MatrixInputFile, MatrixTest, multiply_matrices
+    from .matrix_io import read_expected_file, read_input_file, write_expected_file
 except ImportError:
-    from .src.matrix_io import MatrixInputFile, MatrixTest, multiply_matrices
-    from .src.matrix_io import read_expected_file, read_input_file, write_expected_file
-    from .src.project_config import PROJECT_ROOT
+    from matrix_io import MatrixInputFile, MatrixTest, multiply_matrices
+    from matrix_io import read_expected_file, read_input_file, write_expected_file
+
+try:
+    from config.project_config import PROJECT_ROOT
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from config.project_config import PROJECT_ROOT
 
 
 CMD_LOAD_A = b"A"
@@ -143,7 +147,7 @@ def main() -> None:
         received_tests,
         n=input_data.n,
         acc_width=input_data.acc_width,
-        generated_by="host_uart.py",
+        generated_by="py_matrix_host.main uart",
     )
 
     validation = compare_results(received_tests, expected_data.tests, input_data.n)
@@ -456,5 +460,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print(f"host_uart.py failed: {exc}", file=sys.stderr)
+        print(f"UART host failed: {exc}", file=sys.stderr)
         raise
