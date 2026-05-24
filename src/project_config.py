@@ -13,18 +13,16 @@ DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 
 @dataclass(frozen=True)
 class MatrixConfig:
+    n: int
     num_tests: int
     data_width: int
     acc_width: int
-    rows_a: int
-    cols_a: int
-    rows_b: int
-    cols_b: int
     seed: int
     min_value: int
     max_value: int
+    output_dir: Path
     input_file: Path
-    output_file: Path
+    expected_file: Path
     example: bool
 
 
@@ -75,31 +73,46 @@ def env_bool(name: str, default: bool) -> bool:
     raise ValueError(f"{name} must be a boolean, got {value!r}")
 
 
-def env_path(name: str, default: str, base_dir: Path) -> Path:
-    path = Path(os.environ.get(name, default))
+def env_path(name: str, default: str | Path, base_dir: Path) -> Path:
+    path = Path(os.environ.get(name, str(default)))
     if path.is_absolute():
         return path
     return base_dir / path
 
 
+def signed_range_for_width(width: int) -> tuple[int, int]:
+    if width <= 0:
+        raise ValueError("DATA_WIDTH must be greater than zero")
+    return -(2 ** (width - 1)), (2 ** (width - 1)) - 1
+
+
 def load_matrix_config(env_file: Path = DEFAULT_ENV_FILE) -> MatrixConfig:
     env_file = Path(env_file)
     load_env_file(env_file)
+
     base_dir = PROJECT_ROOT
-    cols_a = env_int("COLS_A", 2)
+    data_width = env_int("DATA_WIDTH", 8)
+    acc_width = env_int("ACC_WIDTH", 32)
+    signed_min, signed_max = signed_range_for_width(data_width)
+    output_dir = env_path("MATRIX_OUTPUT_DIR", "matrix", base_dir)
+
+    # ROWS_A is accepted only as a compatibility fallback for older local env files.
+    n = env_int("N", env_int("ROWS_A", 128))
 
     return MatrixConfig(
+        n=n,
         num_tests=env_int("NUM_TESTS", 1),
-        data_width=env_int("DATA_WIDTH", 16),
-        acc_width=env_int("ACC_WIDTH", 32),
-        rows_a=env_int("ROWS_A", 2),
-        cols_a=cols_a,
-        rows_b=env_int("ROWS_B", cols_a),
-        cols_b=env_int("COLS_B", 2),
-        seed=env_int("SEED", 0),
-        min_value=env_int("MIN_VALUE", 0),
-        max_value=env_int("MAX_VALUE", 9),
-        input_file=env_path("MATRIX_INPUT_FILE", "matrix/matrix_inputs.txt", base_dir),
-        output_file=env_path("MATRIX_OUTPUT_FILE", "matrix/matrix_outputs.txt", base_dir),
+        data_width=data_width,
+        acc_width=acc_width,
+        seed=env_int("SEED", 123),
+        min_value=env_int("MIN_VALUE", signed_min),
+        max_value=env_int("MAX_VALUE", signed_max),
+        output_dir=output_dir,
+        input_file=env_path("MATRIX_INPUT_FILE", output_dir / "matrix_inputs.txt", base_dir),
+        expected_file=env_path(
+            "MATRIX_EXPECTED_FILE",
+            os.environ.get("MATRIX_OUTPUT_FILE", str(output_dir / "matrix_expected.txt")),
+            base_dir,
+        ),
         example=env_bool("EXAMPLE", False),
     )

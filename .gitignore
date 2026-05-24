@@ -5,6 +5,10 @@ venv/
 
 # Generated matrix vectors
 matrix/*.txt
+matrix/*.json
+
+# Host execution logs
+runs/
 
 # Local-only env overrides
 *.local.env
