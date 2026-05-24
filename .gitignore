@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated matrix vectors
+matrix/*.txt
+
+# Local-only env overrides
+.env
+env/*.local
